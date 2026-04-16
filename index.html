@@ -1,615 +1,1355 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StarCraft survey Tutorial</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StarCraft II — Strategic Analysis Tutorial</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg:       #080c12;
+    --bg2:      #0d1420;
+    --bg3:      #111c2e;
+    --panel:    #0a1628;
+    --border:   #1e3355;
+    --border2:  #243d5e;
+    --accent:   #00d4ff;
+    --accent2:  #0099bb;
+    --gold:     #f0b429;
+    --good:     #00e676;
+    --warn:     #ffab00;
+    --crit:     #ff4757;
+    --text:     #c8ddf0;
+    --text2:    #7a9bbf;
+    --text3:    #3d6080;
+    --glow:     0 0 20px rgba(0,212,255,0.25);
+    --glow-sm:  0 0 8px rgba(0,212,255,0.2);
+  }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
-            color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .tutorial-container {
-            max-width: 900px;
-            width: 90%;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
+  html { scroll-behavior: smooth; }
 
-        .slide {
-            display: none;
-            animation: fadeIn 0.5s ease-in-out;
-        }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    font-weight: 300;
+    line-height: 1.65;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-        .slide.active {
-            display: block;
-        }
+  /* ── Animated grid background ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.04) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
+  }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0,80,160,0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
 
-        h1 {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
-            text-align: center;
-            background: linear-gradient(45deg, #00d4ff, #ff0080);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
+  /* ── HEADER ── */
+  header {
+    position: relative; z-index: 10;
+    text-align: center;
+    padding: 64px 24px 32px;
+    border-bottom: 1px solid var(--border);
+  }
 
-        h2 {
-            font-size: 2rem;
-            margin-bottom: 20px;
-            color: #00d4ff;
-        }
+  .header-eyebrow {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    opacity: 0.85;
+  }
 
-        h3 {
-            font-size: 1.5rem;
-            margin: 20px 0 10px 0;
-            color: #ffa500;
-        }
+  header h1 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(32px, 6vw, 64px);
+    font-weight: 700;
+    letter-spacing: 2px;
+    line-height: 1.1;
+    color: #fff;
+    text-shadow: 0 0 40px rgba(0,212,255,0.4);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
 
-        p, li {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
+  header h1 span { color: var(--accent); }
 
-        ul {
-            margin-left: 20px;
-            margin-bottom: 20px;
-        }
+  .header-sub {
+    color: var(--text2);
+    font-size: 14px;
+    letter-spacing: 1px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
 
-        .navigation {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.2);
-        }
+  /* ── SLIDE PROGRESS BAR ── */
+  .progress-bar-wrap {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(8,12,18,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+  .progress-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    white-space: nowrap;
+    min-width: 90px;
+  }
 
-        .btn-primary {
-            background: linear-gradient(45deg, #00d4ff, #0099cc);
-            color: white;
-        }
+  .progress-track {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
 
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-        }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent2), var(--accent));
+    border-radius: 2px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+    box-shadow: 0 0 8px var(--accent);
+  }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-        }
+  .slide-dots {
+    display: flex; gap: 6px;
+  }
 
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
+  .slide-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--border2);
+    cursor: pointer;
+    transition: background 0.25s, transform 0.25s;
+    border: none;
+  }
 
-        .progress-bar {
-            width: 100%;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 3px;
-            margin-bottom: 30px;
-            overflow: hidden;
-        }
+  .slide-dot.active {
+    background: var(--accent);
+    transform: scale(1.4);
+    box-shadow: var(--glow-sm);
+  }
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(45deg, #00d4ff, #ff0080);
-            transition: width 0.5s ease;
-            border-radius: 3px;
-        }
+  /* ── MAIN LAYOUT ── */
+  main {
+    position: relative; z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 40px 24px 180px;
+  }
 
-        .slide-counter {
-            font-size: 0.9rem;
-            color: #cccccc;
-            text-align: center;
-        }
+  /* ── SLIDES ── */
+  .slide { display: none; animation: fadeSlide 0.4s ease; }
+  .slide.active { display: block; }
 
-        .example-box {
-            background: rgba(0, 212, 255, 0.1);
-            border: 1px solid rgba(0, 212, 255, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-        }
+  @keyframes fadeSlide {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
-        .warning-box {
-            background: rgba(255, 165, 0, 0.1);
-            border: 1px solid rgba(255, 165, 0, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-        }
+  /* ── SECTION TITLE ── */
+  .slide-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: clamp(22px, 4vw, 34px);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #fff;
+    margin-bottom: 8px;
+  }
 
-        .critical-box {
-            background: rgba(255, 0, 128, 0.1);
-            border: 1px solid rgba(255, 0, 128, 0.3);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-        }
+  .slide-title .accent { color: var(--accent); }
 
-        .node-category {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: bold;
-            margin: 5px;
-            font-size: 0.9rem;
-        }
+  .slide-intro {
+    color: var(--text2);
+    font-size: 14px;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
 
-        .good-node { background: rgba(0, 255, 0, 0.2); color: #00ff00; }
-        .warning-node { background: rgba(255, 165, 0, 0.2); color: #ffa500; }
-        .critical-node { background: rgba(255, 0, 0, 0.2); color: #ff0000; }
+  /* ── PANEL ── */
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
 
-        .relationship-type {
-            display: inline-block;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-weight: bold;
-            margin: 3px;
-            font-size: 0.8rem;
-            background: rgba(255, 255, 255, 0.1);
-            color: #ffffff;
-        }
+  .panel::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent2), transparent);
+    opacity: 0.5;
+  }
 
-        .practice-question {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-        }
+  .panel-title {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-        .question-options {
-            margin-top: 15px;
-        }
+  .panel-title::before {
+    content: '';
+    display: block;
+    width: 3px; height: 14px;
+    background: var(--accent);
+    border-radius: 2px;
+    flex-shrink: 0;
+    box-shadow: var(--glow-sm);
+  }
 
-        .option {
-            display: block;
-            margin: 10px 0;
-            padding: 10px 15px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
+  /* ── STATUS BADGES ── */
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
 
-        .option:hover {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(0, 212, 255, 0.5);
-        }
+  .status-card {
+    background: var(--bg3);
+    border-radius: 6px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
 
-        .option.selected {
-            background: rgba(0, 212, 255, 0.3);
-            border-color: #00d4ff;
-        }
+  .status-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+    pointer-events: none;
+  }
 
-        .kb-graphic {
-            text-align: center;
-            margin: 20px 0;
-            font-family: monospace;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-    </style>
+  .status-card.good  { border-left: 3px solid var(--good); }
+  .status-card.warn  { border-left: 3px solid var(--warn); }
+  .status-card.crit  { border-left: 3px solid var(--crit); }
+
+  .status-card.good::after  { background: var(--good); }
+  .status-card.warn::after  { background: var(--warn); }
+  .status-card.crit::after  { background: var(--crit); }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 3px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .status-badge.good { background: rgba(0,230,118,0.12); color: var(--good); border: 1px solid rgba(0,230,118,0.3); }
+  .status-badge.warn { background: rgba(255,171,0,0.12);  color: var(--warn); border: 1px solid rgba(255,171,0,0.3); }
+  .status-badge.crit { background: rgba(255,71,87,0.12);  color: var(--crit); border: 1px solid rgba(255,71,87,0.3); }
+
+  .status-badge::before {
+    content: '●';
+    font-size: 8px;
+  }
+
+  .status-card p { color: var(--text2); font-size: 13px; margin-bottom: 10px; }
+
+  .status-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .status-card ul li {
+    font-size: 12px;
+    color: var(--text2);
+    padding-left: 14px;
+    position: relative;
+  }
+
+  .status-card ul li::before {
+    content: '›';
+    position: absolute; left: 0;
+    color: var(--text3);
+  }
+
+  /* ── RELATIONSHIP ITEMS ── */
+  .rel-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .rel-item {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 16px;
+    align-items: start;
+    padding: 14px 16px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    transition: border-color 0.2s;
+  }
+
+  .rel-item:hover { border-color: var(--border2); }
+
+  .rel-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    padding: 3px 8px;
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    background: rgba(0,212,255,0.06);
+    text-align: center;
+    white-space: nowrap;
+    align-self: start;
+    margin-top: 1px;
+  }
+
+  .rel-body { font-size: 13px; }
+  .rel-body strong { color: var(--text); font-weight: 500; display: block; margin-bottom: 4px; }
+  .rel-example {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .rel-example-case {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .rel-rationale {
+    color: var(--text2);
+    font-size: 11px;
+    font-style: normal;
+    line-height: 1.5;
+    padding: 6px 8px;
+    border-left: 2px solid var(--border2);
+    background: rgba(0,212,255,0.04);
+  }
+
+  .rel-rationale::before {
+    content: 'Rationale: ';
+    color: var(--accent);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+
+  /* ── SCENARIO ── */
+  .scenario-box {
+    background: linear-gradient(135deg, rgba(0,80,140,0.2), rgba(0,40,80,0.3));
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+
+  .scenario-box h3 {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .scenario-box p {
+    color: var(--text2);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+  .elements-row {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin: 16px 0;
+  }
+
+  .element-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .element-pill {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    border-radius: 999px;
+    padding: 8px 18px;
+    border: 1px solid transparent;
+    line-height: 1.15;
+    white-space: nowrap;
+  }
+
+  .element-pill.good {
+    color: #17ff60;
+    background: rgba(0,230,118,0.24);
+    border-color: rgba(0,230,118,0.35);
+  }
+
+  .element-pill.crit {
+    color: #ff3f53;
+    background: rgba(255,71,87,0.22);
+    border-color: rgba(255,71,87,0.34);
+  }
+
+  .element-dash {
+    color: #dce8f4;
+    font-size: 28px;
+    line-height: 0.8;
+    margin: 0 2px;
+  }
+
+  .element-desc {
+    color: #e9f1fa;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 1.35;
+    max-width: 520px;
+  }
+
+  @media (max-width: 720px) {
+    .element-pill { font-size: 15px; }
+    .element-dash { font-size: 24px; }
+    .element-desc { font-size: 16px; }
+  }
+
+  .rels-list-compact {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 12px;
+  }
+
+  .rel-row {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    font-size: 13px;
+    color: var(--text2);
+    padding: 8px 10px;
+    background: rgba(17,28,46,0.55);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+  }
+
+  .rel-row-main {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .rel-row-note {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--text2);
+    padding-left: 8px;
+    border-left: 2px solid var(--border2);
+  }
+
+  .rel-row .arrow {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    background: rgba(0,212,255,0.07);
+    padding: 2px 8px;
+    border-radius: 3px;
+    white-space: nowrap;
+  }
+
+  .annotated-edge {
+    display: inline-flex;
+    align-items: flex-end;
+    gap: 6px;
+    white-space: nowrap;
+  }
+
+  .annotated-arrow {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+  }
+
+  .annotated-arrow .rel-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .annotated-arrow .arrow-char {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: var(--accent);
+  }
+
+  /* ── SCREENSHOT ── */
+  .screenshot-wrap {
+    border: 1px solid var(--border2);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .screenshot-label {
+    position: absolute;
+    top: 10px; left: 10px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    background: rgba(8,12,18,0.85);
+    padding: 4px 8px;
+    border-radius: 3px;
+    border: 1px solid var(--border);
+  }
+
+  .screenshot-wrap img {
+    width: 100%;
+    display: block;
+    filter: brightness(0.9) contrast(1.05) saturate(0.9);
+  }
+
+  /* ── PRACTICE QUESTIONS ── */
+  .q-block {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 24px;
+    margin-bottom: 16px;
+    position: relative;
+  }
+
+  .q-number {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--text3);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .q-text {
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  .q-text strong {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .options-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .option-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: border-color 0.2s, background 0.2s;
+    font-size: 13px;
+    color: var(--text2);
+    user-select: none;
+  }
+
+  .option-label:hover {
+    border-color: var(--accent2);
+    background: rgba(0,212,255,0.04);
+    color: var(--text);
+  }
+
+  .option-label.selected {
+    border-color: var(--accent2);
+    background: rgba(0,212,255,0.10);
+    color: var(--text);
+  }
+
+  .option-label input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+  }
+
+  .option-label .radio {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 1px solid var(--border2);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: border-color 0.2s;
+  }
+
+  .option-label .radio::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    transform: scale(0);
+    transition: transform 0.15s ease;
+  }
+
+  .option-label.selected .radio {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(0,212,255,0.12);
+  }
+
+  .option-label.selected .radio::after {
+    transform: scale(1);
+  }
+
+  .option-label:hover .radio { border-color: var(--accent); }
+
+  .option-label input:checked ~ .text,
+  .option-label input:checked ~ * { color: var(--text); }
+
+  /* ── RECAP ── */
+  .recap-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .recap-item {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 16px;
+    text-align: center;
+  }
+
+  .recap-item .badge { margin: 0 auto 10px; display: inline-flex; }
+  .recap-item p { font-size: 12px; color: var(--text2); }
+
+  .info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .info-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    font-size: 13px;
+    color: var(--text2);
+    padding: 8px 12px;
+    border-radius: 4px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+  }
+
+  .info-row .icon {
+    color: var(--accent);
+    font-size: 12px;
+    font-family: 'Share Tech Mono', monospace;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ── OBJECTIVE LIST ── */
+  .obj-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .obj-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    font-size: 14px;
+    color: var(--text2);
+  }
+
+  .obj-num {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    background: rgba(0,212,255,0.08);
+    border: 1px solid var(--border2);
+    border-radius: 3px;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* ── TIME BADGE ── */
+  .time-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(240,180,41,0.08);
+    border: 1px solid rgba(240,180,41,0.25);
+    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 1px;
+    margin-bottom: 28px;
+  }
+
+  /* ── NAV BUTTONS ── */
+  .nav-wrap {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 1000;
+    background: rgba(8,12,18,0.95);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .btn {
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 10px 28px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .btn-prev {
+    background: transparent;
+    color: var(--text2);
+    border: 1px solid var(--border);
+  }
+
+  .btn-prev:hover {
+    border-color: var(--border2);
+    color: var(--text);
+  }
+
+  .btn-next {
+    background: var(--accent);
+    color: #000;
+    box-shadow: 0 0 20px rgba(0,212,255,0.3);
+  }
+
+  .btn-next:hover {
+    background: #33ddff;
+    box-shadow: 0 0 28px rgba(0,212,255,0.5);
+    transform: translateY(-1px);
+  }
+
+  .btn-start {
+    background: linear-gradient(135deg, var(--good), #00b359);
+    color: #000;
+    box-shadow: 0 0 20px rgba(0,230,118,0.3);
+    font-size: 16px;
+    padding: 12px 36px;
+  }
+
+  .btn-start:hover {
+    box-shadow: 0 0 32px rgba(0,230,118,0.5);
+    transform: translateY(-1px);
+  }
+
+  .btn:disabled {
+    opacity: 0.3;
+    cursor: default;
+    transform: none !important;
+  }
+
+  .nav-slide-info {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--text3);
+    letter-spacing: 2px;
+  }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 24px 0;
+  }
+
+  /* ── GUIDELINES ── */
+  .guide-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .guide-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 10px 14px;
+    background: var(--bg3);
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--text2);
+  }
+
+  .guide-item .check {
+    color: var(--good);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
 </head>
 <body>
-    <div class="tutorial-container">
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressFill"></div>
-        </div>
-        
-        <div class="slide-counter" id="slideCounter">Slide 1 of 7</div>
 
-        <!-- Slide 1: Welcome -->
-        <div class="slide active" id="slide1">
-            <h1>Welcome to the StarCraft II Study</h1>
-            <p>This tutorial will teach you how to analyze StarCraft II gameplay screenshots. You'll learn to evaluate the strategic importance of game elements and how they relate to each other.</p>
-            
-            <div class="example-box">
-                <h3>What You'll Learn:</h3>
-                <ul>
-                    <li>How to categorize game elements by importance</li>
-                    <li>How to identify relationships between units and structures</li>
-                    <li>How to assess strategic situations from screenshots</li>
-                </ul>
-            </div>
+<header>
+  <div class="header-eyebrow">HAI · Knowledge Graph · Study Protocol</div>
+  <h1>StarCraft <span>II</span><br>Strategic Analysis</h1>
+  <p class="header-sub">Tutorial — Learn to analyze gameplay screenshots and evaluate strategic element relationships</p>
+</header>
 
-            <p><strong>Estimated Time:</strong> 5-10 minutes</p>
-        </div>
+<!-- STICKY PROGRESS -->
+<div class="progress-bar-wrap">
+  <span class="progress-label" id="progressLabel">SLIDE 1 / 7</span>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width:14.28%"></div>
+  </div>
+  <div class="slide-dots" id="slideDots"></div>
+</div>
 
-        <!-- Slide 2: Element Categories -->
-        <div class="slide" id="slide2">
-            <h2>Element Categories</h2>
-            <p>When analyzing StarCraft II screenshots, we categorize game elements based on their strategic importance and urgency:</p>
+<main>
 
-            <div class="example-box">
-                <span class="node-category good-node">Good</span>
-                <p><strong>Routine/Positive situations that support your strategy:</strong></p>
-                <ul>
-                    <li>Workers mining resources normally</li>
-                    <li>Completed defensive structures</li>
-                    <li>Successful tech upgrades</li>
-                    <li>Stable economy</li>
-                </ul>
-            </div>
+  <!-- ===== SLIDE 1: WELCOME ===== -->
+  <div class="slide active" id="slide-0">
+    <div class="slide-title">Welcome to the <span class="accent">Study</span></div>
+    <p class="slide-intro">This tutorial will teach you how to analyze StarCraft II gameplay screenshots and evaluate strategic importance.</p>
 
-            <div class="warning-box">
-                <span class="node-category warning-node">Warning</span>
-                <p><strong>Situations requiring attention but not immediate action:</strong></p>
-                <ul>
-                    <li>Enemy scouts in your territory</li>
-                    <li>Low on a particular resource</li>
-                    <li>Defensive gaps</li>
-                    <li>Enemy building military units</li>
-                </ul>
-            </div>
+    <div class="time-badge">⏱ ESTIMATED TIME: 5–10 MINUTES</div>
 
-            <div class="critical-box">
-                <span class="node-category critical-node">Critical</span>
-                <p><strong>Urgent situations requiring immediate action:</strong></p>
-                <ul>
-                    <li>Direct attacks on your base</li>
-                    <li>Running out of essential resources</li>
-                    <li>Key structures under threat</li>
-                    <li>Major strategic disadvantages</li>
-                </ul>
-            </div>
-        </div>
-
-        <!-- Slide 3: Relationship Types -->
-        <div class="slide" id="slide3">
-            <h2>Relationship Types</h2>
-            <p>Relationships describe how game elements interact with each other:</p>
-
-            <h3>The Five Relationship Categories:</h3>
-            
-            <div class="relationship-type">is enabling</div>
-            <p>One element is currently powering or supporting another.</p>
-            <p><strong>Example:</strong> Supply Depot → Army (reason: provides supply). Pylon → Protoss Buildings (reason: provides power).</p>
-
-            <div class="relationship-type">could enable</div>
-            <p>One element has the potential to help another, but isn't doing so right now.</p>
-            <p><strong>Example:</strong> Idle Worker → Resource Gathering (reason: can start mining if assigned).</p>
-
-            <div class="relationship-type">is blocking</div>
-            <p>One element is directly preventing another from functioning.</p>
-            <p><strong>Example:</strong> Supply Block → Unit Production (reason: units cannot be created until supply is raised).</p>
-
-            <div class="relationship-type">could block</div>
-            <p>One element could become a constraint in the future.</p>
-            <p><strong>Example:</strong> Enemy Army → Expansion (reason: presence could block base construction).</p>
-
-            <div class="relationship-type">has no impact on</div>
-            <p>One element isn't meaningfully affecting the other right now.</p>
-            <p><strong>Example:</strong> Defensive Turret → Mineral Gathering (reason: turret doesn't affect worker mining).</p>
-        </div>
-
-        <!-- Slide 4: Example Scenario -->
-        <div class="slide" id="slide4">
-            <h2>Example Scenario</h2>
-            <p>Let's look at a sample StarCraft II situation and its strategic representation:</p>
-
-            <div class="example-box">
-                <h3>Game Situation:</h3>
-                <p>You're playing as Terran. Your base has Marines defending, but enemy Zerglings are approaching. Your Command Center is low on health from a previous attack.</p>
-
-                <h3>Game Elements:</h3>
-                <p><span class="node-category good-node">Marines (Good)</span> - Your defensive units are ready</p>
-                <p><span class="node-category critical-node">Command Center (Critical)</span> - Low health, needs protection</p>
-                <p><span class="node-category critical-node">Enemy Zerglings (Critical)</span> - Immediate threat</p>
-
-                <h3>Relationships:</h3>
-                <p>• Marines <span class="relationship-type">is enabling</span> Command Center (providing defense)</p>
-                <p>• Enemy Zerglings <span class="relationship-type">could block</span> Command Center (attacking)</p>
-                <p>• Marines <span class="relationship-type">could block</span> Enemy Zerglings (can fight back)</p>
-            </div>
-        </div>
-
-        <!-- Slide 5: Your Task -->
-        <div class="slide" id="slide5">
-            <h2>Your Task</h2>
-            <p>You will analyze StarCraft II screenshots and answer questions about the strategic importance of game elements and their relationships.</p>
-
-            <h3>For Each Screenshot, You'll Answer:</h3>
-            <ul>
-                <li><strong>Element Questions:</strong> "Is this element correctly categorized as Good/Warning/Critical?"</li>
-                <li><strong>Relationship Questions:</strong> "Does this relationship type accurately describe how these elements interact?"</li>
-            </ul>
-
-            <div class="warning-box">
-                <h3>Important Guidelines:</h3>
-                <ul>
-                    <li>Base your answers on the screenshot, not general StarCraft knowledge</li>
-                    <li>Consider the immediate situation, not long-term strategy</li>
-                    <li>Think about urgency and strategic importance</li>
-                    <li>There are no "trick" questions - use your StarCraft expertise</li>
-                </ul>
-            </div>
-
-            <div class="example-box">
-                <p><strong>Remember:</strong> Your expert StarCraft knowledge helps us understand strategic decision-making in complex situations!</p>
-            </div>
-        </div>
-
-        <!-- Slide 6: Practice Questions -->
-        <div class="slide" id="slide6">
-            <h2>Practice Questions</h2>
-            <p>Let's practice with a few sample questions based on this StarCraft II screenshot. Remember, in the actual study you won't receive feedback.</p>
-            
-            <div class="screenshot-container" style="text-align: center; margin: 20px 0; padding: 15px; background: rgba(0, 0, 0, 0.3); border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.2);">
-                <img src="https://i.imgur.com/p02MGvN.png" alt="StarCraft II Game Screenshot" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);">
-                <p style="font-size: 0.9rem; color: #999999; margin-top: 10px;">
-                    StarCraft II Game Screenshot - Terran Base
-                </p>
-            </div>
-
-            <div class="practice-question">
-                <h3>Practice Question 1:</h3>
-                <p><strong>Question:</strong> In the current game state screenshot, the Advanced Military Units (Specialized unit availability) _________ Strategic Viability (Overall competitive position).</p>
-                
-                <div class="question-options">
-                    <label class="option">
-                        <input type="radio" name="q1" value="is_enabling"> is enabling
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q1" value="could_enable"> could enable
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q1" value="is_blocking"> is blocking
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q1" value="could_block"> could block
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q1" value="no_impact"> has no impact on
-                    </label>
-                </div>
-            </div>
-
-            <div class="practice-question">
-                <h3>Practice Question 2:</h3>
-                <p><strong>Question:</strong> In the current game state screenshot, the SCV Production (Worker unit creation and workforce) _________ Strategic Viability (Overall competitive position).</p>
-                
-                <div class="question-options">
-                    <label class="option">
-                        <input type="radio" name="q2" value="is_enabling"> is enabling
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q2" value="could_enable"> could enable
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q2" value="is_blocking"> is blocking
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q2" value="could_block"> could block
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q2" value="no_impact"> has no impact on
-                    </label>
-                </div>
-            </div>
-
-            <div class="practice-question">
-                <h3>Practice Question 3:</h3>
-                <p><strong>Question:</strong> How would you assess the current Marine Force (Basic infantry unit strength) status?</p>
-                
-                <div class="question-options">
-                    <label class="option">
-                        <input type="radio" name="q3" value="critically_weak"> Critically Weak (inadequate military force)
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q3" value="minimal_force"> Minimal Force (some units but insufficient)
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q3" value="strong_force"> Strong Force (adequate military strength)
-                    </label>
-                </div>
-            </div>
-
-            <div class="practice-question">
-                <h3>Practice Question 4:</h3>
-                <p><strong>Question:</strong> In the current game state screenshot, the Production Scaling (Ability to increase output) _________ Strategic Viability (Overall competitive position).</p>
-                
-                <div class="question-options">
-                    <label class="option">
-                        <input type="radio" name="q4" value="is_enabling"> is enabling
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q4" value="could_enable"> could enable
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q4" value="is_blocking"> is blocking
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q4" value="could_block"> could block
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q4" value="no_impact"> has no impact on
-                    </label>
-                </div>
-            </div>
-
-            <div class="practice-question">
-                <h3>Practice Question 5:</h3>
-                <p><strong>Question:</strong> In the current game state screenshot, the Base Security (Defensive positioning and protection) _________ Strategic Viability (Overall competitive position).</p>
-                
-                <div class="question-options">
-                    <label class="option">
-                        <input type="radio" name="q5" value="is_enabling"> is enabling
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q5" value="could_enable"> could enable
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q5" value="is_blocking"> is blocking
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q5" value="could_block"> could block
-                    </label>
-                    <label class="option">
-                        <input type="radio" name="q5" value="no_impact"> has no impact on
-                    </label>
-                </div>
-            </div>
-        </div>
-
-        <!-- Slide 7: Ready to Begin -->
-        <div class="slide" id="slide7">
-            <h2>You're Ready to Begin!</h2>
-            <p>Great job completing the tutorial! You now understand how to analyze StarCraft II gameplay screenshots.</p>
-
-            <div class="example-box">
-                <h3>Quick Recap:</h3>
-                <ul>
-                    <li><span class="node-category good-node">Good</span> = Routine/positive situations</li>
-                    <li><span class="node-category warning-node">Warning</span> = Needs attention</li>
-                    <li><span class="node-category critical-node">Critical</span> = Urgent action required</li>
-                </ul>
-                <p><strong>Relationships:</strong> is enabling, could enable, is blocking, could block, has no impact on</p>
-            </div>
-
-            <div class="warning-box">
-                <h3>Remember:</h3>
-                <ul>
-                    <li>You'll see 3 different game scenarios</li>
-                    <li>Each takes about 10 minutes to complete</li>
-                    <li>Answer based on what you see in the screenshot</li>
-                    <li>Use your StarCraft expertise and judgment</li>
-                    <li>You can take breaks between sections if needed</li>
-                </ul>
-            </div>
-
-            <p style="text-align: center; font-size: 1.2rem; margin-top: 30px;">
-                <strong>Click "Start Study" when you're ready to begin the main experiment!</strong>
-            </p>
-        </div>
-
-        <div class="navigation">
-            <button class="btn btn-secondary" id="prevBtn" onclick="changeSlide(-1)" disabled>Previous</button>
-            <button class="btn btn-primary" id="nextBtn" onclick="changeSlide(1)">Next</button>
-        </div>
+    <div class="panel">
+      <div class="panel-title">Objectives</div>
+      <div class="obj-list">
+        <div class="obj-item"><div class="obj-num">01</div>Categorize game elements by strategic importance</div>
+        <div class="obj-item"><div class="obj-num">02</div>Identify relationships between units and structures</div>
+        <div class="obj-item"><div class="obj-num">03</div>Assess strategic situations from screenshots</div>
+      </div>
     </div>
 
-    <script>
-        let currentSlide = 1;
-        const totalSlides = 7;
+    <div class="panel">
+      <div class="panel-title">What to Expect</div>
+      <div class="info-list">
+        <div class="info-row"><span class="icon">›</span>You will see 1 game scenario</div>
+        <div class="info-row"><span class="icon">›</span>Base all answers on the screenshot — not prior knowledge</div>
+      </div>
+    </div>
+  </div>
 
-        function updateSlide() {
-            // Hide all slides
-            document.querySelectorAll('.slide').forEach(slide => {
-                slide.classList.remove('active');
-            });
-            
-            // Show current slide
-            document.getElementById(`slide${currentSlide}`).classList.add('active');
-            
-            // Update progress bar
-            const progress = (currentSlide / totalSlides) * 100;
-            document.getElementById('progressFill').style.width = `${progress}%`;
-            
-            // Update slide counter
-            document.getElementById('slideCounter').textContent = `Slide ${currentSlide} of ${totalSlides}`;
-            
-            // Update navigation buttons
-            document.getElementById('prevBtn').disabled = (currentSlide === 1);
-            const nextBtn = document.getElementById('nextBtn');
-            
-            if (currentSlide === totalSlides) {
-                nextBtn.textContent = 'Start Study';
-                nextBtn.classList.remove('btn-primary');
-                nextBtn.classList.add('btn-success');
-                nextBtn.style.background = 'linear-gradient(45deg, #00ff00, #00cc00)';
-            } else {
-                nextBtn.textContent = 'Next';
-                nextBtn.classList.remove('btn-success');
-                nextBtn.classList.add('btn-primary');
-                nextBtn.style.background = 'linear-gradient(45deg, #00d4ff, #0099cc)';
-            }
-        }
+  <!-- ===== SLIDE 2: ELEMENT CATEGORIES ===== -->
+  <div class="slide" id="slide-1">
+    <div class="slide-title">Element <span class="accent">Categories</span></div>
+    <p class="slide-intro">When analyzing StarCraft II screenshots, we categorize game elements based on their strategic importance and urgency</p>
 
-        function changeSlide(direction) {
-            const newSlide = currentSlide + direction;
-            
-            if (newSlide >= 1 && newSlide <= totalSlides) {
-                currentSlide = newSlide;
-                updateSlide();
-            }
-            
-            // If we're on the last slide and clicking next, this would normally proceed to the study
-            if (currentSlide === totalSlides && direction === 1) {
-                // In the actual implementation, this would redirect to the main study
-                alert('Tutorial complete! In the actual study, this would take you to the main experiment.');
-            }
-        }
+    <div class="status-grid">
+      <div class="status-card good">
+        <div class="status-badge good">Good</div>
+        <p>Routine or positive situations supporting your strategy.</p>
+        <ul>
+          <li>Workers mining resources normally</li>
+          <li>Completed defensive structures</li>
+          <li>Successful tech upgrades</li>
+          <li>Stable economy</li>
+        </ul>
+      </div>
+      <div class="status-card warn">
+        <div class="status-badge warn">Warning</div>
+        <p>Situations requiring attention but not immediate action.</p>
+        <ul>
+          <li>Enemy scouts in your territory</li>
+          <li>Low on a particular resource</li>
+          <li>Defensive gaps</li>
+          <li>Enemy building military units</li>
+        </ul>
+      </div>
+      <div class="status-card crit">
+        <div class="status-badge crit">Critical</div>
+        <p>Urgent situations requiring immediate action.</p>
+        <ul>
+          <li>Direct attacks on your base</li>
+          <li>Running out of essential resources</li>
+          <li>Key structures under threat</li>
+          <li>Major strategic disadvantages</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 
-        // Add click handlers for practice question options
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.option').forEach(option => {
-                option.addEventListener('click', function() {
-                    // Remove selected class from siblings
-                    const siblings = this.parentNode.querySelectorAll('.option');
-                    siblings.forEach(sibling => sibling.classList.remove('selected'));
-                    
-                    // Add selected class to clicked option
-                    this.classList.add('selected');
-                });
-            });
+  <!-- ===== SLIDE 3: RELATIONSHIP TYPES ===== -->
+  <div class="slide" id="slide-2">
+    <div class="slide-title">Relationship <span class="accent">Types</span></div>
+    <p class="slide-intro">Relationships describe how game elements interact and affect each other strategically.</p>
+
+    <div class="rel-list">
+      <div class="rel-item">
+        <div class="rel-tag">is enabling</div>
+        <div class="rel-body">
+          <strong>Currently powering or supporting another element</strong>
+          <span class="rel-example">
+            <span class="rel-example-case">
+              <span class="annotated-edge">
+                <span>Supply Depot</span>
+                <span class="annotated-arrow"><span class="rel-label">is enabling</span><span class="arrow-char">→</span></span>
+                <span>Army</span>
+              </span>
+              <span class="rel-rationale">Provides supply that allows army units to exist.</span>
+            </span>
+            <span class="rel-example-case">
+              <span class="annotated-edge">
+                <span>Pylon</span>
+                <span class="annotated-arrow"><span class="rel-label">is enabling</span><span class="arrow-char">→</span></span>
+                <span>Protoss Buildings</span>
+              </span>
+              <span class="rel-rationale">Provides power required for nearby Protoss structures to function.</span>
+            </span>
+          </span>
+        </div>
+      </div>
+      <div class="rel-item">
+        <div class="rel-tag">could enable</div>
+        <div class="rel-body">
+          <strong>Has potential to help, but is not doing so right now</strong>
+          <span class="rel-example">
+            <span class="annotated-edge">
+              <span>Idle Worker</span>
+              <span class="annotated-arrow"><span class="rel-label">could enable</span><span class="arrow-char">→</span></span>
+              <span>Resource Gathering</span>
+            </span>
+            <span class="rel-rationale">Can start mining if assigned to minerals or gas.</span>
+          </span>
+        </div>
+      </div>
+      <div class="rel-item">
+        <div class="rel-tag">is blocking</div>
+        <div class="rel-body">
+          <strong>Directly preventing another element from functioning</strong>
+          <span class="rel-example">
+            <span class="annotated-edge">
+              <span>Supply Block</span>
+              <span class="annotated-arrow"><span class="rel-label">is blocking</span><span class="arrow-char">→</span></span>
+              <span>Unit Production</span>
+            </span>
+            <span class="rel-rationale">Units cannot be produced until available supply is increased.</span>
+          </span>
+        </div>
+      </div>
+      <div class="rel-item">
+        <div class="rel-tag">could block</div>
+        <div class="rel-body">
+          <strong>Could become a constraint in the future</strong>
+          <span class="rel-example">
+            <span class="annotated-edge">
+              <span>Enemy Army</span>
+              <span class="annotated-arrow"><span class="rel-label">could block</span><span class="arrow-char">→</span></span>
+              <span>Expansion</span>
+            </span>
+            <span class="rel-rationale">Its nearby presence can deny or delay new base construction.</span>
+          </span>
+        </div>
+      </div>
+      <div class="rel-item">
+        <div class="rel-tag">has no impact on</div>
+        <div class="rel-body">
+          <strong>No meaningful effect on the other element right now</strong>
+          <span class="rel-example">
+            <span class="annotated-edge">
+              <span>Defensive Turret</span>
+              <span class="annotated-arrow"><span class="rel-label">has no impact on</span><span class="arrow-char">→</span></span>
+              <span>Mineral Gathering</span>
+            </span>
+            <span class="rel-rationale">The turret does not change worker mining rate or assignment.</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 4: EXAMPLE SCENARIO ===== -->
+  <div class="slide" id="slide-3">
+    <div class="slide-title">Example <span class="accent">Scenario</span></div>
+    <p class="slide-intro">A sample StarCraft II situation and its strategic representation.</p>
+
+    <div class="scenario-box">
+      <h3>Situation</h3>
+      <p>You are playing as <strong style="color:#fff">Terran</strong>. Your base has Marines defending, but enemy Zerglings are approaching. Your Command Center is low on health from a previous attack.</p>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Game Elements</div>
+      <div class="elements-row">
+        <div class="element-line">
+          <span class="element-pill good">Marines (Good)</span>
+          <span class="element-dash">-</span>
+          <span class="element-desc">Your defensive units are ready</span>
+        </div>
+        <div class="element-line">
+          <span class="element-pill crit">Command Center (Critical)</span>
+          <span class="element-dash">-</span>
+          <span class="element-desc">Low health, needs immediate protection</span>
+        </div>
+        <div class="element-line">
+          <span class="element-pill crit">Enemy Zerglings (Critical)</span>
+          <span class="element-dash">-</span>
+          <span class="element-desc">Immediate threat near your base</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Relationships</div>
+      <div class="rels-list-compact">
+        <div class="rel-row">
+          <div class="rel-row-main">
+            <span style="color:var(--text)">Marines</span>
+            <span class="arrow">is enabling</span>
+            <span style="color:var(--text)">Command Center</span>
+          </div>
+          <div class="rel-row-note">Marines are actively intercepting incoming Zerglings, reducing direct damage to the Command Center and buying time for repairs or reinforcements.</div>
+        </div>
+        <div class="rel-row">
+          <div class="rel-row-main">
+            <span style="color:var(--text)">Enemy Zerglings</span>
+            <span class="arrow">could block</span>
+            <span style="color:var(--text)">Command Center</span>
+          </div>
+          <div class="rel-row-note">The Zerglings are already pressuring the Command Center, so continued damage can force worker pullbacks, interrupt mining, and delay repairs or production decisions.</div>
+        </div>
+        <div class="rel-row">
+          <div class="rel-row-main">
+            <span style="color:var(--text)">Marines</span>
+            <span class="arrow">could block</span>
+            <span style="color:var(--text)">Enemy Zerglings</span>
+          </div>
+          <div class="rel-row-note">If focused correctly, Marines can eliminate the Zerglings before they overwhelm the position, reducing immediate threat and restoring control of the fight.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 5: YOUR TASK ===== -->
+  <div class="slide" id="slide-4">
+    <div class="slide-title">Your <span class="accent">Task</span></div>
+    <p class="slide-intro">You will analyze StarCraft II screenshots and answer questions about strategic importance and relationships.</p>
+
+    <div class="panel">
+      <div class="panel-title">Question Types</div>
+      <div class="info-list">
+        <div class="info-row">
+          <span class="icon">●</span>
+          <span><strong style="color:var(--text)">Element Questions</strong> — Is this element correctly categorized as Good / Warning / Critical?</span>
+        </div>
+        <div class="info-row">
+          <span class="icon">●</span>
+          <span><strong style="color:var(--text)">Relationship Questions</strong> — Does this relationship type accurately describe how these elements interact?</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Guidelines</div>
+      <div class="guide-list">
+        <div class="guide-item"><span class="check">✓</span>Base answers on the screenshot — not general StarCraft knowledge</div>
+        <div class="guide-item"><span class="check">✓</span>Consider the immediate situation, not long-term strategy</div>
+        <div class="guide-item"><span class="check">✓</span>Think about urgency and strategic importance</div>
+        <div class="guide-item"><span class="check">✓</span>There are no trick questions — use your expertise</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 6: PRACTICE ===== -->
+  <div class="slide" id="slide-5">
+    <div class="slide-title">Practice <span class="accent">Questions</span></div>
+    <p class="slide-intro">Sample questions based on the screenshot below. In the actual study, you will not receive feedback.</p>
+
+    <div class="screenshot-wrap">
+      <div class="screenshot-label">TERRAN BASE · REFERENCE SCREENSHOT</div>
+      <img src="https://i.imgur.com/p02MGvN.png" alt="StarCraft II Game Screenshot — Terran Base"/>
+    </div>
+
+    <div class="q-block">
+      <div class="q-number">Question 01 of 05</div>
+      <div class="q-text">In the current game state, <strong>Advanced Military Units</strong> (Specialized unit availability) ______ <strong>Strategic Viability</strong> (Overall competitive position).</div>
+      <div class="options-list">
+        <label class="option-label"><input type="radio" name="q1" value="a"/><span class="radio"></span>is enabling</label>
+        <label class="option-label"><input type="radio" name="q1" value="b"/><span class="radio"></span>could enable</label>
+        <label class="option-label"><input type="radio" name="q1" value="c"/><span class="radio"></span>is blocking</label>
+        <label class="option-label"><input type="radio" name="q1" value="d"/><span class="radio"></span>could block</label>
+        <label class="option-label"><input type="radio" name="q1" value="e"/><span class="radio"></span>has no impact on</label>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-number">Question 02 of 05</div>
+      <div class="q-text">In the current game state, <strong>SCV Production</strong> (Worker unit creation and workforce) ______ <strong>Strategic Viability</strong> (Overall competitive position).</div>
+      <div class="options-list">
+        <label class="option-label"><input type="radio" name="q2" value="a"/><span class="radio"></span>is enabling</label>
+        <label class="option-label"><input type="radio" name="q2" value="b"/><span class="radio"></span>could enable</label>
+        <label class="option-label"><input type="radio" name="q2" value="c"/><span class="radio"></span>is blocking</label>
+        <label class="option-label"><input type="radio" name="q2" value="d"/><span class="radio"></span>could block</label>
+        <label class="option-label"><input type="radio" name="q2" value="e"/><span class="radio"></span>has no impact on</label>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-number">Question 03 of 05</div>
+      <div class="q-text">How would you assess the current <strong>Marine Force</strong> (Basic infantry unit strength) status?</div>
+      <div class="options-list">
+        <label class="option-label"><input type="radio" name="q3" value="a"/><span class="radio"></span>Critically Weak — inadequate military force</label>
+        <label class="option-label"><input type="radio" name="q3" value="b"/><span class="radio"></span>Minimal Force — some units but insufficient</label>
+        <label class="option-label"><input type="radio" name="q3" value="c"/><span class="radio"></span>Strong Force — adequate military strength</label>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-number">Question 04 of 05</div>
+      <div class="q-text">In the current game state, <strong>Production Scaling</strong> (Ability to increase output) ______ <strong>Strategic Viability</strong> (Overall competitive position).</div>
+      <div class="options-list">
+        <label class="option-label"><input type="radio" name="q4" value="a"/><span class="radio"></span>is enabling</label>
+        <label class="option-label"><input type="radio" name="q4" value="b"/><span class="radio"></span>could enable</label>
+        <label class="option-label"><input type="radio" name="q4" value="c"/><span class="radio"></span>is blocking</label>
+        <label class="option-label"><input type="radio" name="q4" value="d"/><span class="radio"></span>could block</label>
+        <label class="option-label"><input type="radio" name="q4" value="e"/><span class="radio"></span>has no impact on</label>
+      </div>
+    </div>
+
+    <div class="q-block">
+      <div class="q-number">Question 05 of 05</div>
+      <div class="q-text">In the current game state, <strong>Base Security</strong> (Defensive positioning and protection) ______ <strong>Strategic Viability</strong> (Overall competitive position).</div>
+      <div class="options-list">
+        <label class="option-label"><input type="radio" name="q5" value="a"/><span class="radio"></span>is enabling</label>
+        <label class="option-label"><input type="radio" name="q5" value="b"/><span class="radio"></span>could enable</label>
+        <label class="option-label"><input type="radio" name="q5" value="c"/><span class="radio"></span>is blocking</label>
+        <label class="option-label"><input type="radio" name="q5" value="d"/><span class="radio"></span>could block</label>
+        <label class="option-label"><input type="radio" name="q5" value="e"/><span class="radio"></span>has no impact on</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SLIDE 7: READY ===== -->
+  <div class="slide" id="slide-6">
+    <div class="slide-title">You Are <span class="accent">Ready</span></div>
+    <p class="slide-intro">Tutorial complete. Here is a quick recap before you continue to the main study.</p>
+
+    <div class="panel" style="margin-bottom:20px">
+      <div class="panel-title">Element Status Recap</div>
+      <div class="recap-grid">
+        <div class="recap-item">
+          <div class="status-badge good badge">Good</div>
+          <p>Routine & positive situations</p>
+        </div>
+        <div class="recap-item">
+          <div class="status-badge warn badge">Warning</div>
+          <p>Needs attention soon</p>
+        </div>
+        <div class="recap-item">
+          <div class="status-badge crit badge">Critical</div>
+          <p>Urgent action required</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Relationship Types Recap</div>
+      <div class="info-list">
+        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">is enabling</span>Currently powering another element</div>
+        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">could enable</span>Has potential to help, not doing so yet</div>
+        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">is blocking</span>Directly preventing functionality</div>
+        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">could block</span>May become a constraint</div>
+        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">has no impact on</span>No meaningful effect right now</div>
+      </div>
+    </div>
+
+    <div class="panel" style="border-color: rgba(0,230,118,0.25); margin-top:20px">
+      <div class="panel-title" style="color:var(--good)">Next Step</div>
+      <div class="info-list">
+        <div class="info-row"><span class="icon">›</span>The tutorial is now complete.</div>
+        <div class="info-row"><span class="icon">›</span>Please return to the survey tab to continue with the main study.</div>
+        <div class="info-row"><span class="icon">›</span>Answer based on what you see in each screenshot.</div>
+        <div class="info-row"><span class="icon">›</span>Use your StarCraft expertise and judgment.</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- FIXED NAV -->
+<div class="nav-wrap">
+  <button class="btn btn-prev" id="btnPrev" disabled>← Prev</button>
+  <span class="nav-slide-info" id="navInfo">SLIDE 01 / 07</span>
+  <button class="btn btn-next" id="btnNext">Next →</button>
+</div>
+
+<script>
+  let current = 0;
+
+  const slides = document.querySelectorAll('.slide');
+  const TOTAL = slides.length;
+  const progressFill = document.getElementById('progressFill');
+  const progressLabel = document.getElementById('progressLabel');
+  const navInfo = document.getElementById('navInfo');
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+  const dotsWrap = document.getElementById('slideDots');
+
+  // Build dots
+  for (let i = 0; i < TOTAL; i++) {
+    const d = document.createElement('button');
+    d.className = 'slide-dot' + (i === 0 ? ' active' : '');
+    d.setAttribute('aria-label', `Go to slide ${i+1}`);
+    d.addEventListener('click', () => goTo(i));
+    dotsWrap.appendChild(d);
+  }
+
+  function goTo(n) {
+    if (n < 0 || n >= TOTAL || !slides[n]) return;
+    slides[current].classList.remove('active');
+    if (dotsWrap.children[current]) dotsWrap.children[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    if (dotsWrap.children[current]) dotsWrap.children[current].classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    update();
+  }
+
+  function changeSlide(dir) {
+    const next = current + dir;
+    if (next < 0 || next >= TOTAL) return;
+    goTo(next);
+  }
+
+  function update() {
+    const pct = ((current + 1) / TOTAL * 100).toFixed(2);
+    progressFill.style.width = pct + '%';
+    progressLabel.textContent = `SLIDE ${current + 1} / ${TOTAL}`;
+    navInfo.textContent = `SLIDE ${String(current+1).padStart(2,'0')} / ${String(TOTAL).padStart(2,'0')}`;
+    btnPrev.disabled = current === 0;
+
+    const isLast = current === TOTAL - 1;
+    btnNext.textContent = 'Next →';
+    btnNext.className = 'btn btn-next';
+    btnNext.disabled = isLast;
+  }
+
+  function initOptionButtons() {
+    const labels = document.querySelectorAll('.option-label');
+    labels.forEach((label) => {
+      label.addEventListener('click', () => {
+        const input = label.querySelector('input[type=\"radio\"]');
+        if (!input) return;
+        input.checked = true;
+
+        document.querySelectorAll(`.option-label input[name=\"${input.name}\"]`).forEach((peerInput) => {
+          const peerLabel = peerInput.closest('.option-label');
+          if (peerLabel) peerLabel.classList.remove('selected');
         });
+        label.classList.add('selected');
+      });
+    });
+  }
 
-        // Keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'ArrowLeft' && currentSlide > 1) {
-                changeSlide(-1);
-            } else if (e.key === 'ArrowRight' && currentSlide < totalSlides) {
-                changeSlide(1);
-            }
-        });
+  btnPrev.addEventListener('click', () => changeSlide(-1));
+  btnNext.addEventListener('click', () => changeSlide(1));
 
-        // Initialize
-        updateSlide();
-    </script>
+  initOptionButtons();
+  update();
+</script>
 </body>
 </html>
