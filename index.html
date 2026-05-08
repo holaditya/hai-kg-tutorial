@@ -441,6 +441,12 @@
     border-color: rgba(0,230,118,0.35);
   }
 
+  .element-pill.warn {
+    color: #ffc04d;
+    background: rgba(255,171,0,0.22);
+    border-color: rgba(255,171,0,0.34);
+  }
+
   .element-pill.crit {
     color: #ff3f53;
     background: rgba(255,71,87,0.22);
@@ -1081,6 +1087,11 @@
           <span class="element-desc">Your defensive units are ready</span>
         </div>
         <div class="element-line">
+          <span class="element-pill warn">SCVs Mining (Warning)</span>
+          <span class="element-dash">-</span>
+          <span class="element-desc">Workers exposed at the mineral line if defenses break</span>
+        </div>
+        <div class="element-line">
           <span class="element-pill crit">Command Center (Critical)</span>
           <span class="element-dash">-</span>
           <span class="element-desc">Low health, needs immediate protection</span>
@@ -1106,19 +1117,35 @@
         </div>
         <div class="rel-row">
           <div class="rel-row-main">
-            <span style="color:var(--text)">Enemy Zerglings</span>
-            <span class="arrow">could block</span>
+            <span style="color:var(--text)">SCVs Mining</span>
+            <span class="arrow">could enable</span>
             <span style="color:var(--text)">Command Center</span>
           </div>
-          <div class="rel-row-note">The Zerglings are already pressuring the Command Center, so continued damage can force worker pullbacks, interrupt mining, and delay repairs or production decisions.</div>
+          <div class="rel-row-note">Workers are currently focused on minerals, but they could be pulled off mining to repair the Command Center, restoring its low health and securing the base.</div>
         </div>
         <div class="rel-row">
           <div class="rel-row-main">
             <span style="color:var(--text)">Marines</span>
-            <span class="arrow">could block</span>
+            <span class="arrow">is blocking</span>
             <span style="color:var(--text)">Enemy Zerglings</span>
           </div>
-          <div class="rel-row-note">If focused correctly, Marines can eliminate the Zerglings before they overwhelm the position, reducing immediate threat and restoring control of the fight.</div>
+          <div class="rel-row-note">Marines are actively engaging the Zerglings head-on, directly preventing them from reaching the worker line and the Command Center right now.</div>
+        </div>
+        <div class="rel-row">
+          <div class="rel-row-main">
+            <span style="color:var(--text)">Enemy Zerglings</span>
+            <span class="arrow">could block</span>
+            <span style="color:var(--text)">Command Center</span>
+          </div>
+          <div class="rel-row-note">If the Marine line breaks, the Zerglings will reach and damage the already low-health Command Center, potentially destroying it and crippling base operations.</div>
+        </div>
+        <div class="rel-row">
+          <div class="rel-row-main">
+            <span style="color:var(--text)">SCVs Mining</span>
+            <span class="arrow">has no impact on</span>
+            <span style="color:var(--text)">Enemy Zerglings</span>
+          </div>
+          <div class="rel-row-note">Workers focused on resource extraction are not in combat — their mining activity neither helps nor hinders the Zergling advance directly.</div>
         </div>
       </div>
     </div>
@@ -1249,11 +1276,11 @@
     <div class="panel">
       <div class="panel-title">Relationship Types Recap</div>
       <div class="info-list">
-        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">is enabling</span>Currently powering another element</div>
-        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">could enable</span>Has potential to help, not doing so yet</div>
-        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">is blocking</span>Directly preventing functionality</div>
-        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">could block</span>May become a constraint</div>
-        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">has no impact on</span>No meaningful effect right now</div>
+        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">is enabling</span>The element is currently powering or supporting another element.</div>
+        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">could enable</span>The element has the potential to help another element, but is not doing so right now.</div>
+        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">is blocking</span>The element is directly preventing another element from functioning.</div>
+        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">could block</span>The element may become a constraint on another element in the future.</div>
+        <div class="info-row"><span class="icon rel-tag" style="font-size:10px;padding:2px 6px;margin-top:0">has no impact on</span>The element has no meaningful effect on another element right now.</div>
       </div>
     </div>
 
@@ -1262,8 +1289,7 @@
       <div class="info-list">
         <div class="info-row"><span class="icon">›</span>The tutorial is now complete.</div>
         <div class="info-row"><span class="icon">›</span>Please return to the survey tab to continue with the main study.</div>
-        <div class="info-row"><span class="icon">›</span>Answer based on what you see in each screenshot.</div>
-        <div class="info-row"><span class="icon">›</span>Use your StarCraft expertise and judgment.</div>
+        <div class="info-row"><span class="icon">›</span><strong style="color:var(--text);font-weight:600">Answer based on what you see in each screenshot.</strong></div>
       </div>
     </div>
   </div>
